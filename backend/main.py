@@ -1,6 +1,10 @@
-def main():
-    print("Hello from backend!")
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/health")
+def health() -> dict:
+    return JSONResponse({"status": "Healthy", "statusCode": "200"}, status.HTTP_200_OK)
+
