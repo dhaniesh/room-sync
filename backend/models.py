@@ -5,6 +5,7 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+
 class Employees(Base):
     __tablename__ = "employees"
 
@@ -12,3 +13,10 @@ class Employees(Base):
     firstName = Column(String(50), nullable=False)
     lastName = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
+
+
+class Rooms(Base):
+    __tablename__ = "rooms"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
