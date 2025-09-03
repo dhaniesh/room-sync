@@ -8,7 +8,7 @@ from models import Employees
 app = FastAPI()
 
 @app.get("/employee")
-def health(db: Session = Depends(get_db)) -> List[dict]:
+def get_employee(db: Session = Depends(get_db)) -> List[dict]:
     employees = db.query(Employees).all()
     employee_list = []
     for employee in employees:
@@ -21,7 +21,7 @@ def health(db: Session = Depends(get_db)) -> List[dict]:
     return JSONResponse(employee_list, status.HTTP_200_OK)
 
 @app.get("/employee/{id}")
-def health(id, db: Session = Depends(get_db)) -> List[dict]:
+def get_employee_list(id, db: Session = Depends(get_db)) -> List[dict]:
     employee = db.query(Employees).filter(Employees.id == id).first()
     employee = {
         "id": employee.id,
@@ -30,3 +30,4 @@ def health(id, db: Session = Depends(get_db)) -> List[dict]:
         "email": employee.email
     }
     return JSONResponse(employee, status.HTTP_200_OK)
+
