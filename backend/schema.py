@@ -32,11 +32,16 @@ class Room(RoomBase):
         orm_mode = True
 
 
+from datetime import datetime
+
 class MeetingBase(BaseModel):
     employeeId: int
     roomId: int
-    start_time: str
-    end_time: str
+    start_time: datetime
+    end_time: datetime
+
+    class Config:
+        orm_mode = True
 
 
 class MeetingCreate(MeetingBase):

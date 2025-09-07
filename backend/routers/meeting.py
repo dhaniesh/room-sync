@@ -26,16 +26,13 @@ def get_meeting_by_id(id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=schema.Meeting)
 def create_meeting(meeting: schema.MeetingCreate, db: Session = Depends(get_db)):
-    start_time_dt = datetime.fromisoformat(meeting.start_time)
-    end_time_dt = datetime.fromisoformat(meeting.end_time)
-
     # Check for overlapping meetings in the same room
     overlapping_meetings = (
         db.query(Meetings)
         .filter(
             Meetings.roomId == meeting.roomId,
-            Meetings.start_time < end_time_dt,
-            Meetings.end_time > start_time_dt,
+            Meetings.start_time < meeting.end_time,
+            Meetings.end_time > meeting.start_time,
         )
         .first()
     )
@@ -48,8 +45,8 @@ def create_meeting(meeting: schema.MeetingCreate, db: Session = Depends(get_db))
     db_meeting = Meetings(
         employeeId=meeting.employeeId,
         roomId=meeting.roomId,
-        start_time=start_time_dt,
-        end_time=end_time_dt,
+        start_time=meeting.start_time,
+        end_time=meeting.end_time,
     )
     db.add(db_meeting)
     db.commit()
@@ -63,17 +60,14 @@ def update_meeting(id: int, meeting: schema.MeetingCreate, db: Session = Depends
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
-    start_time_dt = datetime.fromisoformat(meeting.start_time)
-    end_time_dt = datetime.fromisoformat(meeting.end_time)
-
     # Check for overlapping meetings in the same room, excluding the current meeting
     overlapping_meetings = (
         db.query(Meetings)
         .filter(
             Meetings.id != id,  # Exclude the current meeting being updated
             Meetings.roomId == meeting.roomId,
-            Meetings.start_time < end_time_dt,
-            Meetings.end_time > start_time_dt,
+            Meetings.start_time < meeting.end_time,
+            Meetings.end_time > meeting.start_time,
         )
         .first()
     )
@@ -85,8 +79,8 @@ def update_meeting(id: int, meeting: schema.MeetingCreate, db: Session = Depends
 
     db_meeting.employeeId = meeting.employeeId
     db_meeting.roomId = meeting.roomId
-    db_meeting.start_time = start_time_dt
-    db_meeting.end_time = end_time_dt
+    db_meeting.start_time = meeting.start_time
+    db_meeting.end_time = meeting.end_time
     db.commit()
     db.refresh(db_meeting)
     return db_meeting
