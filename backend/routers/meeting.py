@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Annotated
 from datetime import datetime
 
 from database import get_db
@@ -9,15 +9,16 @@ import schema
 
 router = APIRouter(prefix="/meeting", tags=["meeting"])
 
+db_dependency = Annotated[Session, Depends(get_db)]
 
 @router.get("", response_model=List[schema.Meeting])
-def get_all_meetings(db: Session = Depends(get_db)):
+def get_all_meetings(db: db_dependency):
     meetings = db.query(Meetings).all()
     return meetings
 
 
 @router.get("/{id}", response_model=schema.Meeting)
-def get_meeting_by_id(id: int, db: Session = Depends(get_db)):
+def get_meeting_by_id(id: int, db: db_dependency):
     meeting = db.query(Meetings).filter(Meetings.id == id).first()
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
@@ -25,7 +26,7 @@ def get_meeting_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=schema.Meeting)
-def create_meeting(meeting: schema.MeetingCreate, db: Session = Depends(get_db)):
+def create_meeting(meeting: schema.MeetingCreate, db: db_dependency):
     # Check for overlapping meetings in the same room
     overlapping_meetings = (
         db.query(Meetings)
@@ -55,7 +56,7 @@ def create_meeting(meeting: schema.MeetingCreate, db: Session = Depends(get_db))
 
 
 @router.put("/{id}", response_model=schema.Meeting)
-def update_meeting(id: int, meeting: schema.MeetingCreate, db: Session = Depends(get_db)):
+def update_meeting(id: int, meeting: schema.MeetingCreate, db: db_dependency):
     db_meeting = db.query(Meetings).filter(Meetings.id == id).first()
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
@@ -87,7 +88,7 @@ def update_meeting(id: int, meeting: schema.MeetingCreate, db: Session = Depends
 
 
 @router.delete("/{id}", status_code=204)
-def delete_meeting(id: int, db: Session = Depends(get_db)):
+def delete_meeting(id: int, db: db_dependency):
     db_meeting = db.query(Meetings).filter(Meetings.id == id).first()
     if not db_meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
