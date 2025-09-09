@@ -5,17 +5,19 @@ import axios from "axios";
 function App() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  let rooms = [];
+  const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     async function fetchRooms() {
-      const data = await axios
-        .get("http://localhost:8000/room")
-        .then((response) => console.log(response.data))
-        .catch((error) => console.error(error));
+      try {
+        const response = await axios.get("http://localhost:8000/room");
+        
+        setRooms(response.data);
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+      }
     }
-    rooms = fetchRooms();
-    console.log(rooms);
+    fetchRooms();
   }, []);
 
   function onDateChange(e, destinationFunction) {
@@ -48,11 +50,15 @@ function App() {
         <div>
           <p className="text-xl">Available rooms</p>
           <select>
-            {rooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name}
-              </option>
-            ))}
+            {rooms.length > 0 ? (
+              rooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                </option>
+              ))
+            ) : (
+              <option>No rooms available</option>
+            )}
           </select>
         </div>
       </div>
