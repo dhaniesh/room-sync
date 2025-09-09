@@ -11,7 +11,7 @@ function App() {
     async function fetchRooms() {
       try {
         const response = await axios.get("http://localhost:8000/room");
-        
+
         setRooms(response.data);
       } catch (error) {
         console.error("Error fetching rooms:", error);
