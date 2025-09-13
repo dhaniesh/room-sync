@@ -32,15 +32,7 @@ function App() {
       </div>
       <div className="font-serif flex justify-center gap-x-20">
         <div>
-          <p className="text-xl">Start time</p>
-          <input
-            type="date"
-            onChange={(e) => onDateChange(e, setStartDate)}
-            value={new Date(startDate).toISOString().slice(0, 10)}
-          />
-        </div>
-        <div>
-          <p className="text-xl">End time</p>
+          <p className="text-xl">Date</p>
           <input
             type="date"
             onChange={(e) => onDateChange(e, setEndDate)}
@@ -49,6 +41,21 @@ function App() {
         </div>
         <div>
           <p className="text-xl">Available rooms</p>
+          <select>
+            {rooms.length > 0 ? (
+              rooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                </option>
+              ))
+            ) : (
+              <option>No rooms available</option>
+            )}
+          </select>
+        </div>
+
+        <div>
+          <p className="text-xl">Available slots</p>
           <select>
             {rooms.length > 0 ? (
               rooms.map((room) => (
