@@ -3,22 +3,30 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function App() {
-  const [time, setTime] = useState(new Date());
   const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState("00:00");
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     async function fetchRooms() {
+      console.log({date, time})
+      const body = {
+        date: new Date(date).toISOString().slice(0, 10),
+        time,
+      };
+      console.log({body})
       try {
-        const response = await axios.get("http://localhost:8000/room");
-
+        const response = await axios.post(
+          "http://localhost:8000/meeting/availability",
+          body
+        );
         setRooms(response.data);
       } catch (error) {
         console.error("Error fetching rooms:", error);
       }
     }
     fetchRooms();
-  }, []);
+  }, [time, date]);
 
   function onChange(e, destinationFunction) {
     console.log(e.target.value);
@@ -38,7 +46,7 @@ function App() {
           <input
             type="date"
             onChange={(e) => onChange(e, setDate)}
-            value={new Date(date).toISOString().slice(0, 10)}
+            value={date}
           />
         </div>
         <div>
@@ -50,7 +58,7 @@ function App() {
           />
         </div>
         <div>
-          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
             Search
           </button>
         </div>
