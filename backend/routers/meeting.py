@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Annotated
-from datetime import datetime, timedelta
+from datetime import datetime, date, time, timedelta
 
 from database import get_db
 from models import Meetings, Rooms
@@ -10,6 +10,7 @@ import schema
 router = APIRouter(prefix="/meeting", tags=["meeting"])
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
 
 @router.get("", response_model=List[schema.Meeting])
 def get_all_meetings(db: db_dependency):
@@ -102,17 +103,21 @@ def get_available_rooms(slot: schema.Slot, db: db_dependency):
     all_rooms = db.query(Rooms).all()
     available_rooms = []
 
+    # Construct full datetime objects for slot start and end
+    slot_start = datetime.combine(slot.date, slot.time)
+    slot_end = slot_start + timedelta(minutes=30)
+
     for room in all_rooms:
-        overlapping_meetings = (
+        overlapping_meeting = (
             db.query(Meetings)
             .filter(
                 Meetings.roomId == room.id,
-                Meetings.date == slot.date,
-                Meetings.start_time < slot.time,
-                Meetings.end_time > slot.time + timedelta(minutes=30),
+                Meetings.start_time < slot_end,   # meeting starts before slot ends
+                Meetings.end_time > slot_start,   # meeting ends after slot starts
             )
             .first()
         )
-        if not overlapping_meetings:
+        if not overlapping_meeting:
             available_rooms.append(room)
+
     return available_rooms

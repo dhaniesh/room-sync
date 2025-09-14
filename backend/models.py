@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Time
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -30,9 +30,8 @@ class Meetings(Base):
     id = Column(Integer, primary_key=True)
     employeeId = Column(Integer, ForeignKey("employees.id"), nullable=False)
     roomId = Column(Integer, ForeignKey("rooms.id"), nullable=False)
-    date = Column(Date, nullable=True)
-    start_time = Column(Time, nullable=False)
-    end_time = Column(Time, nullable=False)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=False)
 
     # Relationships for easier ORM querying
     employee = relationship("Employees", back_populates="meetings")
