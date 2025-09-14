@@ -1,3 +1,4 @@
+from datetime import datetime, date, time
 from pydantic import BaseModel
 
 
@@ -32,8 +33,6 @@ class Room(RoomBase):
         orm_mode = True
 
 
-from datetime import datetime
-
 class MeetingBase(BaseModel):
     employeeId: int
     roomId: int
@@ -50,6 +49,14 @@ class MeetingCreate(MeetingBase):
 
 class Meeting(MeetingBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+class Slot(BaseModel):
+    date: date
+    time: time
 
     class Config:
         orm_mode = True

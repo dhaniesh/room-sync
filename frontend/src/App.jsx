@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function App() {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
+  const [date, setDate] = useState(new Date());
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
@@ -20,10 +20,12 @@ function App() {
     fetchRooms();
   }, []);
 
-  function onDateChange(e, destinationFunction) {
+  function onChange(e, destinationFunction) {
     console.log(e.target.value);
     destinationFunction(e.target.value);
   }
+
+  function onSearch(e) {}
   return (
     <>
       <div className="font-serif flex flex-col justify-center items-center gap-y-4 text-center pb-40">
@@ -35,27 +37,25 @@ function App() {
           <p className="text-xl">Date</p>
           <input
             type="date"
-            onChange={(e) => onDateChange(e, setEndDate)}
-            value={new Date(endDate).toISOString().slice(0, 10)}
+            onChange={(e) => onChange(e, setDate)}
+            value={new Date(date).toISOString().slice(0, 10)}
           />
         </div>
         <div>
-          <p className="text-xl">Available rooms</p>
-          <select>
-            {rooms.length > 0 ? (
-              rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.name}
-                </option>
-              ))
-            ) : (
-              <option>No rooms available</option>
-            )}
-          </select>
+          <p className="text-xl">Time</p>
+          <input
+            type="time"
+            onChange={(e) => onChange(e, setTime)}
+            value={time}
+          />
         </div>
-
         <div>
-          <p className="text-xl">Available slots</p>
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+            Search
+          </button>
+        </div>
+        <div>
+          <p className="text-xl">Available rooms</p>
           <select>
             {rooms.length > 0 ? (
               rooms.map((room) => (

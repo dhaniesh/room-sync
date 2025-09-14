@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Annotated
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from database import get_db
-from models import Meetings
+from models import Meetings, Rooms
 import schema
 
 router = APIRouter(prefix="/meeting", tags=["meeting"])
@@ -95,3 +95,24 @@ def delete_meeting(id: int, db: db_dependency):
     db.delete(db_meeting)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/availability", response_model=List[schema.Room])
+def get_available_rooms(slot: schema.Slot, db: db_dependency):
+    all_rooms = db.query(Rooms).all()
+    available_rooms = []
+
+    for room in all_rooms:
+        overlapping_meetings = (
+            db.query(Meetings)
+            .filter(
+                Meetings.roomId == room.id,
+                Meetings.date == slot.date,
+                Meetings.start_time < slot.time,
+                Meetings.end_time > slot.time + timedelta(minutes=30),
+            )
+            .first()
+        )
+        if not overlapping_meetings:
+            available_rooms.append(room)
+    return available_rooms
